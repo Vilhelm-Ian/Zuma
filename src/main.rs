@@ -45,7 +45,7 @@ const MAP1: [[f32; 2]; 21] = [
 //    }
 //}
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug)]
 struct Point {
     x: f32,
     y: f32,
@@ -123,7 +123,7 @@ fn draw_map(map: Vec<Point>) -> Vec<Point> {
     let mut result = vec![];
     let mut i = 0;
     loop {
-        let mut curve_points = bezier_curve(map[i], map[i + 1], map[i + 2]);
+        let mut curve_points = bezier_curve(&map[i], &map[i + 1], &map[i + 2]);
         result.append(&mut curve_points);
 
         i += 2;
@@ -134,7 +134,7 @@ fn draw_map(map: Vec<Point>) -> Vec<Point> {
     result
 }
 
-fn bezier_curve(p0: Point, p1: Point, p2: Point) -> Vec<Point> {
+fn bezier_curve(p0: &Point, p1: &Point, p2: &Point) -> Vec<Point> {
     let mut result = vec![];
     for i in 0..100 {
         let t = i as f32 / 100.0;
@@ -158,14 +158,12 @@ fn add_points(points: Vec<Point>) -> Point {
 fn normalize_all_points(mut points: Vec<Point>) -> Vec<Point> {
     let average = get_average_magnitude_between_all_points(&points);
     for i in 0..points.len() - 1 {
-        points[i + 1] = normalize_and_scale(&[points[i], points[i + 1]], average);
+        points[i + 1] = normalize_and_scale(&points[i], &points[i + 1], average);
     }
     points
 }
 
-fn normalize_and_scale(points: &[Point], n: f32) -> Point {
-    let p1 = points[0];
-    let p2 = points[1];
+fn normalize_and_scale(p1: &Point, p2: &Point, n: f32) -> Point {
     let magnitude = get_magnitude_between_points(&p1, &p2);
     let x = p1.x + ((p2.x - p1.x) * n) / magnitude;
     let y = p1.y + ((p2.y - p1.y) * n) / magnitude;
@@ -188,8 +186,8 @@ fn get_magnitude_between_points(p1: &Point, p2: &Point) -> f32 {
 fn normalize_two_points() {
     let p1 = Point::new([1.0, 1.0]);
     let p2 = Point::new([3.0, 3.0]);
-    let points = vec![p1, p2];
-    let normalized_point = normalize_and_scale(&points, 1.0);
+    let points = vec![&p1, &p2];
+    let normalized_point = normalize_and_scale(&p1, &p2, 1.0);
     let result = get_magnitude_between_points(&points[0], &normalized_point);
     assert_eq!(result, 1.0);
 }
@@ -198,8 +196,8 @@ fn normalize_two_points() {
 fn normalize_two_points_and_scale_by_two() {
     let p1 = Point::new([1.0, 1.0]);
     let p2 = Point::new([3.0, 3.0]);
-    let points = vec![p1, p2];
-    let normalized_point = normalize_and_scale(&points, 2.0);
+    let points = vec![&p1, &p2];
+    let normalized_point = normalize_and_scale(&p1, &p2, 2.0);
     let result = get_magnitude_between_points(&points[0], &normalized_point);
     assert_eq!(result, 2.0);
 }
